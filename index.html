@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<title>XAU/USD 14-Day Challenge V3</title>
+<style>
+:root{--bg:#0b0d12;--card:#131722;--card2:#191e2b;--text:#f5f7fb;--muted:#9aa4b5;--line:#283040;--accent:#7c9cff;--green:#39d98a;--red:#ff647c;--yellow:#f5c451}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{padding-bottom:88px}.app{max-width:900px;margin:auto;padding:18px 14px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{font-size:21px;margin:0}.sub{color:var(--muted);font-size:12px;margin-top:4px}
+nav{position:fixed;z-index:10;bottom:0;left:0;right:0;background:#10141d;border-top:1px solid var(--line);display:flex;justify-content:center}
+nav button{flex:1;max-width:180px;border:0;background:none;color:var(--muted);padding:12px 5px calc(12px + env(safe-area-inset-bottom));font-size:11px}
+nav button.active{color:var(--text)}nav span{display:block;font-size:18px;margin-bottom:3px}
+.page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:10px}
+.label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em}.value{font-size:23px;font-weight:700;margin-top:5px}.smallvalue{font-size:16px;font-weight:650;margin-top:5px}
+.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}.muted{color:var(--muted)}
+.progress{height:9px;background:#252b38;border-radius:20px;overflow:hidden;margin:10px 0}.bar{height:100%;background:var(--accent);width:0}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.section-title{font-size:15px;font-weight:700;margin:18px 2px 9px}
+button,.btn{border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:10px;padding:10px 12px;font-weight:600}
+.primary{background:var(--accent);border-color:var(--accent);color:#071022}.danger{background:#2a151b;border-color:#55232e;color:#ff9aaa}
+input,select,textarea{width:100%;background:#0d1119;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px;font:inherit}
+textarea{min-height:75px;resize:vertical}label{font-size:11px;color:var(--muted);display:block;margin:8px 0 5px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.formgrid .full{grid-column:1/-1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px 5px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{color:var(--muted);font-weight:600}
+.tablewrap{overflow:auto}.pill{padding:4px 7px;border-radius:99px;font-size:10px;background:#252b38}.win{color:var(--green)}.loss{color:var(--red)}.be{color:var(--yellow)}
+.signal-card{border:1px solid var(--line);background:#10151f;border-radius:13px;padding:12px;margin-bottom:9px}
+.signal-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.signal-id{font-weight:700}.tag{font-size:10px;padding:4px 7px;border-radius:8px;background:#222938}
+.chart{height:220px;width:100%;display:block}.empty{text-align:center;color:var(--muted);padding:24px 8px}
+.notice{background:#161c28;border:1px solid #30394d;border-radius:12px;padding:11px;font-size:12px;color:#c5ccda}
+details summary{cursor:pointer;font-weight:650;padding:4px 0}.dangerbox{border-color:#5a2833}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}.grid3{grid-template-columns:repeat(6,1fr)}.app{padding-top:28px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><h1>Gold Challenge</h1><div class="sub">XAU/USD · 14-Day Challenge · V3</div></div><button onclick="showPage('settings')">⚙️</button></header>
+
+<section id="home" class="page active">
+<div class="grid">
+<div class="card"><div class="label">Current balance</div><div id="balance" class="value">$0.00</div></div>
+<div class="card"><div class="label">Goal</div><div id="goal" class="value">$1,000</div></div>
+<div class="card"><div class="label">Profit made</div><div id="profitMade" class="value">$0.00</div></div>
+<div class="card"><div class="label">Still needed</div><div id="profitNeeded" class="value">$0.00</div></div>
+</div>
+<div class="card">
+<div class="row"><span class="label">Challenge progress</span><span id="progressPct" class="smallvalue">0%</span></div>
+<div class="progress"><div id="progressBar" class="bar"></div></div>
+<div class="row"><span class="muted">Start $<span id="startSmall">60</span></span><span class="muted">Goal $<span id="goalSmall">1,000</span></span></div>
+</div>
+<div class="grid">
+<div class="card"><div class="label">Required today</div><div id="todayProfit" class="value">$0.00</div><div id="todayRate" class="sub">0% required growth</div></div>
+<div class="card"><div class="label">Per trade target</div><div id="tradeTarget" class="value">$0.00</div><div class="sub">Based on 3 trades/day</div></div>
+<div class="card"><div class="label">Days remaining</div><div id="daysRemaining" class="value">14</div></div>
+<div class="card"><div class="label">Challenge status</div><div id="status" class="value">—</div></div>
+</div>
+<div class="card"><div class="label">Actual equity vs mathematical target</div><canvas id="equityChart" class="chart"></canvas></div>
+<div class="section-title">Today's trading</div>
+<div class="grid3">
+<div class="card"><div class="label">Signals</div><div id="todaySignals" class="smallvalue">0</div></div>
+<div class="card"><div class="label">Trades</div><div id="todayTrades" class="smallvalue">0</div></div>
+<div class="card"><div class="label">Wins</div><div id="todayWins" class="smallvalue green">0</div></div>
+<div class="card"><div class="label">Losses</div><div id="todayLosses" class="smallvalue red">0</div></div>
+<div class="card"><div class="label">Today's P/L</div><div id="todayPL" class="smallvalue">$0</div></div>
+<div class="card"><div class="label">Actual growth</div><div id="todayGrowth" class="smallvalue">0%</div></div>
+</div>
+<div class="section-title">14-Day Overview</div>
+<div class="card tablewrap"><table><thead><tr><th>Day</th><th>Start</th><th>Target</th><th>Actual</th><th>P/L</th><th>Trades</th><th>Status</th></tr></thead><tbody id="daysTable"></tbody></table></div>
+</section>
+
+<section id="signals" class="page">
+<div class="section-title">Add signal</div>
+<div class="card">
+<div class="formgrid">
+<div><label>Signal # / ID</label><input id="sId" placeholder="e.g. 001"></div>
+<div><label>Date / time</label><input id="sDate" type="datetime-local"></div>
+<div><label>Direction</label><select id="sDir"><option>BUY</option><option>SELL</option></select></div>
+<div><label>Entry</label><input id="sEntry" type="number" step="any"></div>
+<div><label>Stop Loss</label><input id="sSL" type="number" step="any"></div>
+<div><label>Take Profit</label><input id="sTP" type="number" step="any"></div>
+<div><label>Lot size (actual)</label><input id="sLot" type="number" step="0.01" min="0.01" value="0.01"></div>
+<div><label>Took signal?</label><select id="sTaken"><option>Yes</option><option>No</option></select></div>
+<div><label>Followed exactly?</label><select id="sFollow"><option>Yes</option><option>No</option></select></div>
+<div><label>Signal outcome</label><select id="sOutcome"><option>Win</option><option>Loss</option><option>BE</option></select></div>
+<div><label>Your P/L ($)</label><input id="sPL" type="number" step="0.01" value="0"></div>
+<div><label>Your P/L (%)</label><input id="sPLPct" type="number" step="0.01" placeholder="Optional"></div>
+<div class="full"><label>Notes</label><textarea id="sNotes" placeholder="Execution notes, late entry, missed TP, etc."></textarea></div>
+</div>
+<div class="actions"><button class="primary" onclick="addSignal()">Add signal</button><button onclick="clearSignalForm()">Clear</button></div>
+</div>
+<div class="section-title">Signal log</div><div id="signalList"></div>
+</section>
+
+<section id="performance" class="page">
+<div class="section-title">My trading performance</div>
+<div class="grid">
+<div class="card"><div class="label">Trades</div><div id="pTrades" class="value">0</div></div>
+<div class="card"><div class="label">Win rate</div><div id="pWinRate" class="value">0%</div></div>
+<div class="card"><div class="label">Total P/L</div><div id="pPL" class="value">$0</div></div>
+<div class="card"><div class="label">Profit factor</div><div id="pPF" class="value">0</div></div>
+<div class="card"><div class="label">Avg win</div><div id="pAvgWin" class="smallvalue">$0</div></div>
+<div class="card"><div class="label">Avg loss</div><div id="pAvgLoss" class="smallvalue">$0</div></div>
+<div class="card"><div class="label">Largest win</div><div id="pMaxWin" class="smallvalue">$0</div></div>
+<div class="card"><div class="label">Largest loss</div><div id="pMaxLoss" class="smallvalue">$0</div></div>
+<div class="card"><div class="label">Win streak</div><div id="pWinStreak" class="smallvalue">0</div></div>
+<div class="card"><div class="label">Loss streak</div><div id="pLossStreak" class="smallvalue">0</div></div>
+<div class="card"><div class="label">Max drawdown</div><div id="pDD" class="smallvalue red">$0</div></div>
+<div class="card"><div class="label">Followed exactly</div><div id="pFollow" class="smallvalue">0%</div></div>
+</div>
+<div class="section-title">Signal group performance</div>
+<div class="grid">
+<div class="card"><div class="label">Signals received</div><div id="gReceived" class="value">0</div></div>
+<div class="card"><div class="label">Taken</div><div id="gTaken" class="value">0</div></div>
+<div class="card"><div class="label">Skipped</div><div id="gSkipped" class="value">0</div></div>
+<div class="card"><div class="label">Signal wins</div><div id="gWins" class="value green">0</div></div>
+<div class="card"><div class="label">Signal losses</div><div id="gLosses" class="value red">0</div></div>
+<div class="card"><div class="label">Signal win rate</div><div id="gRate" class="value">0%</div></div>
+<div class="card"><div class="label">Group P/L (taken)</div><div id="gPL" class="value">$0</div></div>
+<div class="card"><div class="label">Followed exactly</div><div id="gFollow" class="value">0%</div></div>
+</div>
+<div class="card"><div class="notice">Signal quality and execution quality are tracked separately. A signal can win while your execution loses, or vice versa.</div></div>
+</section>
+
+<section id="days" class="page">
+<div class="section-title">Daily challenge breakdown</div>
+<div id="dayCards"></div>
+</section>
+
+<section id="settings" class="page">
+<div class="section-title">Challenge settings</div>
+<div class="card">
+<div class="formgrid">
+<div><label>Starting balance ($)</label><input id="setStart" type="number" step="0.01"></div>
+<div><label>Goal ($)</label><input id="setGoal" type="number" step="0.01"></div>
+<div><label>Challenge days</label><input id="setDays" type="number" min="1" step="1"></div>
+<div><label>Expected trades/day</label><input id="setTrades" type="number" min="1" step="1"></div>
+<div><label>Typical spread (points)</label><input id="setSpread" type="number" step="0.1"></div>
+<div><label>Current challenge day</label><input id="setDay" type="number" min="1" step="1"></div>
+</div>
+<div class="actions"><button class="primary" onclick="saveSettings()">Save settings</button></div>
+</div>
+<div class="section-title">Data backup</div>
+<div class="card">
+<div class="notice">Export regularly. The backup contains your challenge settings and every signal/trade you have logged.</div>
+<div class="actions"><button onclick="exportData()">Export backup</button><label class="btn" style="cursor:pointer">Import backup<input id="importFile" type="file" accept=".json" onchange="importData(event)" style="display:none"></label></div>
+</div>
+<div class="section-title">Reset</div>
+<div class="card dangerbox"><div class="notice">Resetting deletes the challenge data stored in this browser. Export a backup first if you want to keep it.</div><div class="actions"><button class="danger" onclick="resetData()">Reset challenge</button></div></div>
+</section>
+</div>
+
+<nav>
+<button class="active" data-page="home" onclick="showPage('home')"><span>⌂</span>Home</button>
+<button data-page="signals" onclick="showPage('signals')"><span>＋</span>Signals</button>
+<button data-page="performance" onclick="showPage('performance')"><span>◈</span>Performance</button>
+<button data-page="days" onclick="showPage('days')"><span>▤</span>Days</button>
+<button data-page="settings" onclick="showPage('settings')"><span>⚙</span>Settings</button>
+</nav>
+
+<script>
+const KEY='xauusdChallengeV3';
+const defaultData={settings:{start:60,goal:1000,days:14,tradesPerDay:3,spread:1,currentDay:1},signals:[],version:3};
+let data=load();
+function load(){
+ try{
+  const old=JSON.parse(localStorage.getItem(KEY));
+  if(old) return old;
+  const v2=JSON.parse(localStorage.getItem('xauusdChallengeV2'));
+  if(v2){ return migrate(v2); }
+ }catch(e){}
+ return structuredClone(defaultData);
+}
+function migrate(v){
+ const d=structuredClone(defaultData);
+ if(v.settings){Object.assign(d.settings,{start:+v.settings.start||60,goal:+v.settings.goal||1000,days:+v.settings.days||14,tradesPerDay:+v.settings.tradesPerDay||3,spread:+v.settings.spread||1});}
+ if(Array.isArray(v.trades)) d.signals=v.trades.map((t,i)=>({id:String(i+1),date:t.date||new Date().toISOString().slice(0,16),dir:'BUY',entry:'',sl:'',tp:'',lot:'0.01',taken:'Yes',followed:'Yes',outcome:t.result||'BE',pl:+t.pl||0,plPct:'',notes:t.note||''}));
+ save(d); return d;
+}
+function save(d=data){localStorage.setItem(KEY,JSON.stringify(d));data=d}
+function money(x){return '$'+Number(x||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+function pct(x){return (Number(x)||0).toFixed(2)+'%'}
+function fmtDate(s){try{return new Date(s).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}catch(e){return s}}
+function dayIndex(dateStr){const start=new Date();start.setHours(0,0,0,0);const d=new Date(dateStr);d.setHours(0,0,0,0);return Math.max(1,Math.min(data.settings.days,Math.floor((d-start)/86400000)+data.settings.currentDay))}
+function currentBalance(){
+ return data.settings.start + data.signals.reduce((a,s)=>a+(s.taken==='Yes'?Number(s.pl||0):0),0);
+}
+function requiredRate(){
+ const b=currentBalance(), g=data.settings.goal;
+ const remaining=Math.max(1,data.settings.days-data.settings.currentDay+1);
+ return b>0&&g>b ? Math.pow(g/b,1/remaining)-1 : 0;
+}
+function todayProfitReq(){return Math.max(0,currentBalance()*requiredRate())}
+function targetBalance(day){return data.settings.start*Math.pow(data.settings.goal/data.settings.start,day/data.settings.days)}
+function render(){
+ const b=currentBalance(),g=data.settings.goal,s=data.settings.start;
+ document.getElementById('balance').textContent=money(b);document.getElementById('goal').textContent=money(g);
+ document.getElementById('profitMade').textContent=money(b-s);document.getElementById('profitNeeded').textContent=money(Math.max(0,g-b));
+ const prog=Math.max(0,Math.min(100,(b-s)/(g-s)*100));document.getElementById('progressPct').textContent=pct(prog);document.getElementById('progressBar').style.width=prog+'%';
+ document.getElementById('startSmall').textContent=s.toLocaleString();document.getElementById('goalSmall').textContent=g.toLocaleString();
+ const rr=requiredRate();document.getElementById('todayProfit').textContent=money(todayProfitReq());document.getElementById('todayRate').textContent=pct(rr*100)+' required growth';
+ document.getElementById('tradeTarget').textContent=money(todayProfitReq()/data.settings.tradesPerDay);
+ document.getElementById('daysRemaining').textContent=Math.max(0,data.settings.days-data.settings.currentDay+1);
+ const baseline=targetBalance(data.settings.currentDay), diff=b-baseline;
+ const st=document.getElementById('status');st.textContent=Math.abs(diff)<0.005?'ON TARGET':diff>0?'AHEAD':'BEHIND';st.className='value '+(diff>=0?'green':'red');
+ const today=data.signals.filter(x=>dayIndex(x.date)===data.settings.currentDay), taken=today.filter(x=>x.taken==='Yes');
+ document.getElementById('todaySignals').textContent=today.length;document.getElementById('todayTrades').textContent=taken.length;
+ document.getElementById('todayWins').textContent=taken.filter(x=>x.outcome==='Win').length;document.getElementById('todayLosses').textContent=taken.filter(x=>x.outcome==='Loss').length;
+ const tpl=taken.reduce((a,x)=>a+Number(x.pl||0),0);document.getElementById('todayPL').textContent=money(tpl);
+ const prev=todayStartBalance();document.getElementById('todayGrowth').textContent=prev>0?pct(tpl/prev*100):'0%';
+ renderDaysTable();renderChart();renderSignals();renderPerformance();renderDayCards();renderSettings();
+}
+function todayStartBalance(){
+ let bal=data.settings.start;
+ for(let d=1;d<data.settings.currentDay;d++){
+  bal += data.signals.filter(x=>dayIndex(x.date)===d&&x.taken==='Yes').reduce((a,x)=>a+Number(x.pl||0),0);
+ }
+ return bal;
+}
+function renderDaysTable(){
+ let html='';
+ for(let d=1;d<=data.settings.days;d++){
+  const start=d===1?data.settings.start:targetOrActualStart(d);
+  const actual=start+data.signals.filter(x=>dayIndex(x.date)===d&&x.taken==='Yes').reduce((a,x)=>a+Number(x.pl||0),0);
+  const pl=actual-start, target=targetBalance(d), diff=actual-target;
+  const trades=data.signals.filter(x=>dayIndex(x.date)===d&&x.taken==='Yes').length;
+  html+=`<tr><td>${d}</td><td>${money(start)}</td><td>${money(target)}</td><td>${money(actual)}</td><td class="${pl>=0?'green':'red'}">${money(pl)}</td><td>${trades}</td><td class="${diff>=0?'green':'red'}">${diff>=0?'Ahead':'Behind'}</td></tr>`;
+ }
+ document.getElementById('daysTable').innerHTML=html;
+}
+function targetOrActualStart(d){
+ let bal=data.settings.start;
+ for(let x=1;x<d;x++) bal+=data.signals.filter(s=>dayIndex(s.date)===x&&s.taken==='Yes').reduce((a,s)=>a+Number(s.pl||0),0);
+ return bal;
+}
+function renderChart(){
+ const c=document.getElementById('equityChart'),ctx=c.getContext('2d'),w=c.clientWidth||600,h=c.height=220;c.width=w*devicePixelRatio;c.height=h*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);ctx.clearRect(0,0,w,h);
+ const n=data.settings.days, actual=[data.settings.start],target=[data.settings.start];let bal=data.settings.start;
+ for(let d=1;d<=n;d++){bal+=data.signals.filter(s=>dayIndex(s.date)===d&&s.taken==='Yes').reduce((a,s)=>a+Number(s.pl||0),0);actual.push(bal);target.push(targetBalance(d))}
+ const vals=actual.concat(target),min=Math.min(...vals),max=Math.max(...vals),pad=24;
+ const x=i=>pad+(w-pad*2)*(i/n),y=v=>h-pad-(h-pad*2)*(v-min)/(Math.max(1,max-min));
+ function line(arr,dash){ctx.beginPath();ctx.setLineDash(dash? [5,5]:[]);arr.forEach((v,i)=>i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v)));ctx.strokeStyle=dash?'#778199':'#7c9cff';ctx.lineWidth=2;ctx.stroke();ctx.setLineDash([])}
+ line(target,true);line(actual,false);ctx.fillStyle='#9aa4b5';ctx.font='10px sans-serif';ctx.fillText('$'+Math.round(max),4,12);ctx.fillText('$'+Math.round(min),4,h-4);ctx.fillText('Target',w-78,14);ctx.fillText('Actual',w-78,28);
+}
+function renderSignals(){
+ const el=document.getElementById('signalList');if(!data.signals.length){el.innerHTML='<div class="card empty">No signals logged yet.</div>';return}
+ el.innerHTML=[...data.signals].sort((a,b)=>new Date(b.date)-new Date(a.date)).map((s,i)=>`
+ <div class="signal-card"><div class="signal-head"><span class="signal-id">#${esc(s.id||i+1)} · ${s.dir}</span><span class="tag ${s.outcome==='Win'?'win':s.outcome==='Loss'?'loss':'be'}">${s.outcome}</span></div>
+ <div class="sub">${fmtDate(s.date)} · Entry ${s.entry||'—'} · SL ${s.sl||'—'} · TP ${s.tp||'—'} · ${s.lot||'—'} lot</div>
+ <div class="row" style="margin-top:8px"><span>${s.taken==='Yes'?'Taken':'Skipped'} · ${s.followed==='Yes'?'Followed exactly':'Execution differed'}</span><strong class="${Number(s.pl)>=0?'green':'red'}">${money(s.pl)}</strong></div>
+ ${s.notes?'<div class="sub" style="margin-top:7px">'+esc(s.notes)+'</div>':''}
+ <div class="actions"><button onclick="editSignal('${escAttr(s.id)}')">Edit</button><button class="danger" onclick="deleteSignal('${escAttr(s.id)}')">Delete</button></div></div>`).join('');
+}
+function renderPerformance(){
+ const taken=data.signals.filter(s=>s.taken==='Yes'), wins=taken.filter(s=>s.outcome==='Win'),loss=taken.filter(s=>s.outcome==='Loss');
+ const pl=taken.reduce((a,s)=>a+Number(s.pl||0),0),grossWin=wins.reduce((a,s)=>a+Math.max(0,Number(s.pl||0)),0),grossLoss=Math.abs(loss.reduce((a,s)=>a+Math.min(0,Number(s.pl||0)),0));
+ const follow=taken.length?taken.filter(s=>s.followed==='Yes').length/taken.length*100:0;
+ set('pTrades',taken.length);set('pWinRate',pct(taken.length?wins.length/taken.length*100:0));setMoney('pPL',pl);set('pPF',grossLoss? (grossWin/grossLoss).toFixed(2):grossWin?'∞':'0');
+ setMoney('pAvgWin',wins.length?grossWin/wins.length:0);setMoney('pAvgLoss',loss.length?grossLoss/loss.length:0);setMoney('pMaxWin',wins.length?Math.max(...wins.map(x=>Number(x.pl||0))):0);setMoney('pMaxLoss',loss.length?Math.min(...loss.map(x=>Number(x.pl||0))):0);
+ let ws=0,ls=0,cw=0,cl=0;for(const s of taken){if(s.outcome==='Win'){cw++;cl=0;ws=Math.max(ws,cw)}else if(s.outcome==='Loss'){cl++;cw=0;ls=Math.max(ls,cl)}}
+ let equity=data.settings.start,peak=equity,dd=0;for(const s of taken){equity+=Number(s.pl||0);peak=Math.max(peak,equity);dd=Math.max(dd,peak-equity)}
+ set('pWinStreak',ws);set('pLossStreak',ls);setMoney('pDD',dd);set('pFollow',pct(follow));
+ const received=data.signals.length,skipped=data.signals.filter(s=>s.taken!=='Yes').length;
+ set('gReceived',received);set('gTaken',taken.length);set('gSkipped',skipped);set('gWins',wins.length);set('gLosses',loss.length);set('gRate',pct(received?wins.length/received*100:0));setMoney('gPL',pl);set('gFollow',pct(follow));
+}
+function set(id,v){document.getElementById(id).textContent=v}function setMoney(id,v){document.getElementById(id).textContent=money(v)}
+function renderDayCards(){
+ let out='';for(let d=1;d<=data.settings.days;d++){
+  const sig=data.signals.filter(s=>dayIndex(s.date)===d),taken=sig.filter(s=>s.taken==='Yes'),pl=taken.reduce((a,s)=>a+Number(s.pl||0),0),start=targetOrActualStart(d),actual=start+pl,target=targetBalance(d);
+  out+=`<div class="card"><details ${d===data.settings.currentDay?'open':''}><summary>Day ${d} — <span class="${actual>=target?'green':'red'}">${actual>=target?'Ahead':'Behind'}</span></summary><div class="grid" style="margin-top:10px">
+  <div><div class="label">Starting</div><div class="smallvalue">${money(start)}</div></div><div><div class="label">Target</div><div class="smallvalue">${money(target)}</div></div><div><div class="label">Actual</div><div class="smallvalue">${money(actual)}</div></div><div><div class="label">P/L</div><div class="smallvalue ${pl>=0?'green':'red'}">${money(pl)}</div></div><div><div class="label">Signals</div><div class="smallvalue">${sig.length}</div></div><div><div class="label">Trades</div><div class="smallvalue">${taken.length}</div></div></div></details></div>`;
+ }document.getElementById('dayCards').innerHTML=out;
+}
+function renderSettings(){const s=data.settings;setVal('setStart',s.start);setVal('setGoal',s.goal);setVal('setDays',s.days);setVal('setTrades',s.tradesPerDay);setVal('setSpread',s.spread);setVal('setDay',s.currentDay)}
+function setVal(id,v){document.getElementById(id).value=v}
+function addSignal(){
+ const s={id:v('sId')||String(data.signals.length+1).padStart(3,'0'),date:v('sDate')||new Date().toISOString().slice(0,16),dir:v('sDir'),entry:v('sEntry'),sl:v('sSL'),tp:v('sTP'),lot:v('sLot'),taken:v('sTaken'),followed:v('sFollow'),outcome:v('sOutcome'),pl:Number(v('sPL')||0),plPct:v('sPLPct'),notes:v('sNotes')};
+ data.signals.push(s);save();clearSignalForm();render();
+}
+function clearSignalForm(){['sId','sEntry','sSL','sTP','sPLPct','sNotes'].forEach(id=>document.getElementById(id).value='');document.getElementById('sLot').value='0.01';document.getElementById('sPL').value='0';document.getElementById('sDate').value=new Date().toISOString().slice(0,16)}
+function editSignal(id){
+ const s=data.signals.find(x=>String(x.id)===String(id));if(!s)return;
+ const fields=[['sId',s.id],['sDate',s.date],['sDir',s.dir],['sEntry',s.entry],['sSL',s.sl],['sTP',s.tp],['sLot',s.lot],['sTaken',s.taken],['sFollow',s.followed],['sOutcome',s.outcome],['sPL',s.pl],['sPLPct',s.plPct],['sNotes',s.notes]];
+ fields.forEach(([id,val])=>setVal(id,val));showPage('signals');
+ document.querySelector('#signals .primary').onclick=()=>{const idx=data.signals.findIndex(x=>String(x.id)===String(id));data.signals[idx]={id:v('sId'),date:v('sDate'),dir:v('sDir'),entry:v('sEntry'),sl:v('sSL'),tp:v('sTP'),lot:v('sLot'),taken:v('sTaken'),followed:v('sFollow'),outcome:v('sOutcome'),pl:Number(v('sPL')||0),plPct:v('sPLPct'),notes:v('sNotes')};save();document.querySelector('#signals .primary').onclick=addSignal;clearSignalForm();render();}
+}
+function deleteSignal(id){if(confirm('Delete this signal?')){data.signals=data.signals.filter(x=>String(x.id)!==String(id));save();render()}}
+function saveSettings(){
+ data.settings.start=Number(v('setStart'));data.settings.goal=Number(v('setGoal'));data.settings.days=Number(v('setDays'));data.settings.tradesPerDay=Number(v('setTrades'));data.settings.spread=Number(v('setSpread'));data.settings.currentDay=Number(v('setDay'));
+ if(data.settings.currentDay>data.settings.days)data.settings.currentDay=data.settings.days;save();render();alert('Settings saved.');
+}
+function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='xauusd-challenge-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.settings||!Array.isArray(x.signals))throw Error();data=x;save();render();alert('Backup imported.')}catch(err){alert('Invalid backup file.')}};r.readAsText(file)}
+function resetData(){if(confirm('Reset ALL challenge data? This cannot be undone unless you exported a backup.')){data=structuredClone(defaultData);save();render()}}
+function showPage(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));window.scrollTo(0,0)}
+function v(id){return document.getElementById(id).value}function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function escAttr(x){return esc(x).replace(/'/g,'&#039;')}
+window.addEventListener('resize',renderChart);clearSignalForm();render();
+</script>
+</body>
+</html>
